@@ -4,6 +4,8 @@
 int main(){
 	FILE * fin = fopen("simplefs.bin", "r");
        	struct inode slash;
+	printf("size: %lu\n", sizeof(struct sb));
+	printf("size: %lu\n", sizeof(slash));
 	fseek(fin, sizeof(struct sb), SEEK_SET);
 	fread(&slash,sizeof(slash),1,fin);
 
