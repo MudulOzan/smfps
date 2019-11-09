@@ -15,9 +15,11 @@ int main(){
 	printf("type: %d\n", slash.type);
 	printf("size: %d\n", slash.size);
 	printf("datablocks[0]: %d\n", slash.datablocks[0]);	
-
-	void ls() {
-		
-	}
+	
+	fread(&slash,sizeof(slash),1,fin);
+	printf("Slash\n");
+	printf("type: %d\n", slash.type);
+	printf("size: %d\n", slash.size);
+	printf("datablocks[0]: %d\n", slash.datablocks[0]);	
 	return 0;
 }
