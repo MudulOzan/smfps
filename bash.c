@@ -29,23 +29,24 @@ int main() {
 void ls(FILE *fin) {
     struct inode inostr;
     struct dir_entry de;
-    int j = 0;
-	for(int i = 0; i < 9; i++){
-        get_dir_entry(fin, &de, 0, i);
-	    if(strcmp(de.name, ".")==0 ||strcmp(de.name, "..")==0)
-            printf("\t%s\n", de.name);
-        else
-            printf("%s\n", de.name);
-    }   
+    get_inode_struct(fin, &inostr, inum);
 
-    /*if(inum < 9) {
+    while(inostr.size == 64) {
+        for(int i = 0; i < 3; i++){ // dir entry times 
+            get_dir_entry(fin, &de, 0, dirnum);
+            printf("inode: %d, ", inostr.size);
+            if(strcmp(de.name, ".")==0 ||strcmp(de.name, "..")==0)
+                printf("\t%s\n", de.name);
+            else
+                printf("%s\n", de.name);
+
+            //long size=ftell (fin);
+            //printf ("Size of myfile.txt: %ld bytes.\n",size);
+            dirnum++;
+        }   
         inum++;
-        dirnum++;
-        //printf("inode num: %d",de.inode_num);
-        printf("-------------------------\n");
-        ls(fin);
-
-    }*/
+        printf("inum: %d\n", inum);
+    }
 }
 
 

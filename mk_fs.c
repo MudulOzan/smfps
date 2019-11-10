@@ -12,12 +12,42 @@ int main() {
 
 	fwrite(&super_block, sizeof(super_block), 1, fout);
 
+	//------------ INODES START ------------//
+
 	struct inode slash;
 	slash.type = DIR;
 	slash.size = DIRENTRYSIZE * 2;
 	slash.datablocks[0] = 0;
 
 	fwrite(&slash, sizeof(slash), 1, fout);
+
+	//---------------------------------------------------------------------//
+
+	struct inode inHome;
+	inHome.type = DIR;
+	inHome.size = DIRENTRYSIZE * 2;
+	inHome.datablocks[0] = 0;
+
+	fwrite(&inHome, sizeof(inHome), 1, fout);
+
+	//---------------------------------------------------------------------//
+
+	struct inode inDownloads;
+	inDownloads.type = DIR;
+	inDownloads.size = DIRENTRYSIZE * 2;
+	inDownloads.datablocks[0] = 0;
+	
+	fwrite(&inDownloads, sizeof(inDownloads), 1, fout);
+
+	//------------ INODES END ------------//
+
+
+
+
+
+
+
+	//------------ DIR ENTRIES START ------------//
 
 	struct dir_entry root;
 	strcpy(root.name, "/");
@@ -32,19 +62,13 @@ int main() {
 	dotdot.inode_num = 0;
 
 
-	
 	fseek(fout, sizeof(super_block) + NUMOFINODES * sizeof(struct inode), SEEK_SET);
 	fwrite(&root, sizeof(root), 1, fout);
 	fwrite(&dot, sizeof(dot), 1, fout);
 	fwrite(&dotdot, sizeof(dotdot), 1, fout);
 
-	//..........//
+	//---------------------------------------------------------------------//
 
-	struct inode inHome;
-	inHome.type = DIR;
-	inHome.size = DIRENTRYSIZE * 2;
-	inHome.datablocks[0] = 0;
-	
 	struct dir_entry home;
 	strcpy(home.name, "home");
 	home.inode_num = 1;
@@ -55,16 +79,11 @@ int main() {
 	strcpy(dotdot.name, "..");
 	dotdot.inode_num = 0;
 
-	fread(&home,sizeof(home),1,fout);
-
 	fwrite(&home, sizeof(home), 1, fout);
 	fwrite(&dot, sizeof(dot), 1, fout);
 	fwrite(&dotdot, sizeof(dotdot), 1, fout);
 
-	struct inode inDownloads;
-	inDownloads.type = DIR;
-	inDownloads.size = DIRENTRYSIZE * 2;
-	inDownloads.datablocks[0] = 0;
+	//---------------------------------------------------------------------//
 
 	struct dir_entry downloads;
 	strcpy(downloads.name, "downloads");
@@ -80,6 +99,7 @@ int main() {
 	fwrite(&dot, sizeof(dot), 1, fout);
 	fwrite(&dotdot, sizeof(dotdot), 1, fout);
 
+	//------------ DIR ENTRIES END ------------//
 
 	fflush(fout);
 
