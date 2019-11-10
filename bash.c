@@ -2,6 +2,9 @@
 #include "structures.h"
 #include <string.h>
 
+int inum = 0;
+int dirnum = 0;
+
 void ls(FILE *file);
 void get_inode_struct(FILE *f, struct inode *inode,int inode_num);
 void mkdir(FILE *file);
@@ -26,17 +29,29 @@ int main() {
 void ls(FILE *fin) {
     struct inode inostr;
     struct dir_entry de;
-    get_inode_struct(fin, &inostr, 0);
-    printf("/\n");
-	for(int i = 0; i < inostr.size/32; i++){
-        get_dir_entry(fin, &de, 0, i); // 0 is hardcoded so we need to pass dir entry number for recursive
-        // we gonna go datablock 0
-        printf("\t%s\n", de.name);
+    int j = 0;
+	for(int i = 0; i < 9; i++){
+        get_dir_entry(fin, &de, 0, i);
+	    if(strcmp(de.name, ".")==0 ||strcmp(de.name, "..")==0)
+            printf("\t%s\n", de.name);
+        else
+            printf("%s\n", de.name);
     }   
+
+    /*if(inum < 9) {
+        inum++;
+        dirnum++;
+        //printf("inode num: %d",de.inode_num);
+        printf("-------------------------\n");
+        ls(fin);
+
+    }*/
 }
+
 
 void mkdir(FILE *fin) {
     printf("you are inside mkdir\n");
+
 }
 
 void get_inode_struct(FILE *fin, struct inode *inostr, int inode_num){

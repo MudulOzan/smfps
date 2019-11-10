@@ -37,35 +37,46 @@ int main() {
 	fwrite(&root, sizeof(root), 1, fout);
 	fwrite(&dot, sizeof(dot), 1, fout);
 	fwrite(&dotdot, sizeof(dotdot), 1, fout);
+
 	//..........//
 
-	struct inode home;
-	home.type = DIR;
-	home.size = DIRENTRYSIZE * 2;
-	home.datablocks[0] = 0;
+	struct inode inHome;
+	inHome.type = DIR;
+	inHome.size = DIRENTRYSIZE * 2;
+	inHome.datablocks[0] = 0;
+	
+	struct dir_entry home;
+	strcpy(home.name, "home");
+	home.inode_num = 1;
 
-
-	strcpy(dot.name, ".home");
+	strcpy(dot.name, ".");
 	dot.inode_num = 1;
 
 	strcpy(dotdot.name, "..");
-	dotdot.inode_num = 1;
+	dotdot.inode_num = 0;
 
+	fread(&home,sizeof(home),1,fout);
+
+	fwrite(&home, sizeof(home), 1, fout);
 	fwrite(&dot, sizeof(dot), 1, fout);
 	fwrite(&dotdot, sizeof(dotdot), 1, fout);
 
-	struct inode downloads;
-	downloads.type = DIR;
-	downloads.size = DIRENTRYSIZE * 2;
-	downloads.datablocks[0] = 0;
+	struct inode inDownloads;
+	inDownloads.type = DIR;
+	inDownloads.size = DIRENTRYSIZE * 2;
+	inDownloads.datablocks[0] = 0;
 
+	struct dir_entry downloads;
+	strcpy(downloads.name, "downloads");
+	downloads.inode_num = 2;
 
-	strcpy(dot.name, ".downloads");
+	strcpy(dot.name, ".");
 	dot.inode_num = 2;
 
 	strcpy(dotdot.name, "..");
-	dotdot.inode_num = 2;
+	dotdot.inode_num = 0;
 
+	fwrite(&downloads, sizeof(downloads), 1, fout);
 	fwrite(&dot, sizeof(dot), 1, fout);
 	fwrite(&dotdot, sizeof(dotdot), 1, fout);
 
