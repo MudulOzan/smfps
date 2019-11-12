@@ -34,24 +34,48 @@ void ls(FILE *fin) {
     while(inostr.size == 64) {
         for(int i = 0; i < 3; i++){ // dir entry times 
             get_dir_entry(fin, &de, 0, dirnum);
-            printf("inode: %d, ", inostr.size);
+            
             if(strcmp(de.name, ".")==0 ||strcmp(de.name, "..")==0)
                 printf("\t%s\n", de.name);
             else
                 printf("%s\n", de.name);
-
-            //long size=ftell (fin);
-            //printf ("Size of myfile.txt: %ld bytes.\n",size);
             dirnum++;
         }   
         inum++;
+        get_inode_struct(fin, &inostr, inum);
+
         printf("inum: %d\n", inum);
     }
 }
 
 
-void mkdir(FILE *fin) {
+void mkdir(FILE *fin, char name[28]) {
     printf("you are inside mkdir\n");
+    //we need an fseek here in order to jump written inodes
+	struct inode dir;
+	dir.type = DIR;
+	dir.size = DIRENTRYSIZE * 2;
+	dir.datablocks[0] = 0;
+
+    fwrite(&dir, sizeof(dir), 1, fout);
+
+    fseek(fout, sizeof(super_block) + NUMOFINODES * sizeof(struct inode), SEEK_SET); // this will be calculated till the end of the dir entries
+	
+    struct dir_entry folder;
+	strcpy(folder.name, name);
+	folder.inode_num = 1; // this will be the current folders inode + 1
+
+	struct dir_entry dot;
+	strcpy(dot.name, ".");
+	dot.inode_num = 1; // this will be the current folders inode + 1
+
+	struct dir_entry dotdot;
+	strcpy(dotdot.name, "..");
+	dotdot.inode_num = 0; // this will be the current folders inode
+
+    fwrite(&home, sizeof(folder), 1, fout);
+	fwrite(&dot, sizeof(dot), 1, fout);
+	fwrite(&dotdot, sizeof(dotdot), 1, fout);
 
 }
 
