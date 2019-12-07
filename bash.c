@@ -4,10 +4,10 @@
 
 int inum = 0;
 int dirnum = 0;
-
-void ls(FILE *file);
+int x = 0; 
+void ls(FILE *file, int inum);
 void get_inode_struct(FILE *f, struct inode *inode,int inode_num);
-void mkdir(FILE *file);
+void mkdir(FILE *fin, char name[28]);
 void get_dir_entry(FILE *fin, struct dir_entry *de, int db_num, int dir_entry_num);
 
 int main() {
@@ -18,15 +18,46 @@ int main() {
         printf("> ");
 		scanf("%s",command);
         if(strcmp(command, "ls") == 0) {
-            ls(fin);
+            ls(fin, 0);
         }
         else if (strcmp(command,"mkdir") == 0) {
-            mkdir(fin);
+            //mkdir(fin, name);
         }
     }
 }
 
-void ls(FILE *fin) {
+void ls(FILE *fin, int inum) {
+	
+    struct inode inostr;
+	struct dir_entry de;
+	get_inode_struct(fin,&inostr,inum);
+	//printf("size: %d\n", inostr.size);
+	//printf("you are inside ls\n");
+	//printf("\ninum %d\n", inum);
+	printf("------------------------");
+
+	int i;
+	for(i = 0; i < 3; i++){
+        get_dir_entry(fin,&de,0,i);
+	printf("\ninum %d\n", i);
+
+        if(strcmp(de.name, ".") != 0 && strcmp(de.name, "..") != 0) 
+        {
+		    printf("%s\n",de.name);
+            dirnum++;    
+            if(inostr.type == 1) {
+                inum++;
+                ls(fin, inum);
+            }
+        }
+
+	}
+    
+
+
+
+
+/*
     struct inode inostr;
     struct dir_entry de;
     get_inode_struct(fin, &inostr, inum);
@@ -44,12 +75,13 @@ void ls(FILE *fin) {
         inum++;
         get_inode_struct(fin, &inostr, inum);
 
-        printf("inum: %d\n", inum);
-    }
+        //printf("inum: %d\n", inum);
+    }*/
 }
 
 
 void mkdir(FILE *fin, char name[28]) {
+    /*
     printf("you are inside mkdir\n");
     //we need an fseek here in order to jump written inodes
 	struct inode dir;
@@ -75,7 +107,7 @@ void mkdir(FILE *fin, char name[28]) {
 
     fwrite(&home, sizeof(folder), 1, fout);
 	fwrite(&dot, sizeof(dot), 1, fout);
-	fwrite(&dotdot, sizeof(dotdot), 1, fout);
+	fwrite(&dotdot, sizeof(dotdot), 1, fout);*/
 
 }
 
