@@ -4,8 +4,8 @@
 
 int inum = 0;
 int dirnum = 0;
-int x = 0; 
-void ls(FILE *file, int inum);
+int tab = 0; 
+void ls(FILE *file, int inum, int tab);
 void get_inode_struct(FILE *f, struct inode *inode,int inode_num);
 void mkdir(FILE *fin, char name[28]);
 void get_dir_entry(FILE *fin, struct dir_entry *de, int db_num, int dir_entry_num);
@@ -18,7 +18,7 @@ int main() {
         printf("> ");
 		scanf("%s",command);
         if(strcmp(command, "ls") == 0) {
-            ls(fin, 0);
+            ls(fin, 0, tab);
         }
         else if (strcmp(command,"mkdir") == 0) {
             //mkdir(fin, name);
@@ -26,7 +26,7 @@ int main() {
     }
 }
 
-void ls(FILE *fin, int inum) {
+void ls(FILE *fin, int inum, int tab) {
 	
     struct inode inostr;
 	struct dir_entry de;
@@ -34,23 +34,20 @@ void ls(FILE *fin, int inum) {
 	//printf("size: %d\n", inostr.size);
 	//printf("you are inside ls\n");
 	//printf("\ninum %d\n", inum);
-	printf("------------------------");
 
 	int i;
-	for(i = 0; i < 3; i++){
-        get_dir_entry(fin,&de,0,i);
-	printf("\ninum %d\n", i);
-
+	for(i = 0; i < inostr.size/64; i++){
+        get_dir_entry(fin,&de,inostr.datablocks[0],i);
+        
         if(strcmp(de.name, ".") != 0 && strcmp(de.name, "..") != 0) 
         {
-		    printf("%s\n",de.name);
-            dirnum++;    
             if(inostr.type == 1) {
+                printf("%s\n",de.name);
                 inum++;
-                ls(fin, inum);
+                tab++;
+                ls(fin, inum, tab);
             }
         }
-
 	}
     
 
