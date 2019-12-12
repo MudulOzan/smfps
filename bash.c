@@ -1,13 +1,18 @@
 #include <stdio.h>
 #include "structures.h"
 #include <string.h>
+#include <stdbool.h>
 
 int inum = 0;
 int dirnum = 0;
 int tab = 0; 
 int currentDir = 0;
+int previousDir = 0;
 char name[28];
+char currentDirName[28] = "~";
+char previousDirName[28] = "~";
 void ls(FILE *file, int inum, int tab);
+void cd(FILE *file, char name[28], int inum);
 void get_inode_struct(FILE *f, struct inode *inode,int inode_num);
 //void mkdir(FILE *fin, char name[28]);
 void mkdir(int currentDir, char name[28]);
@@ -19,10 +24,12 @@ int main() {
 
     char command[32];
     while(1) {
-        printf("> ");
+
+        printf("\033[1;32m\03user@DESKTOP:\033[1;34m\03%s\033[0m\03$ ", currentDirName);
 		scanf("%s",command);
         if(strcmp(command, "ls") == 0) {
             printf("*************\n");
+            printf("/\n");
             ls(fin, 0, tab);
             printf("*************\n");
         }
@@ -30,6 +37,11 @@ int main() {
             //mkdir(fin, name);
             scanf("%s", name);
             mkdir(currentDir, name);
+        }
+        else if (strcmp(command,"cd") == 0) {
+            //mkdir(fin, name);
+            scanf("%s", name);
+            cd(fin, name, currentDir);
         }
     }
 }
@@ -39,52 +51,68 @@ void ls(FILE *fin, int inum, int tab) {
     struct inode inostr;
 	struct dir_entry de;
 	get_inode_struct(fin,&inostr,inum);
-	//printf("size: %d\n", inostr.size);
-	//printf("you are inside ls\n");
-	//printf("\ninum %d\n", inum);
 
 	int i;
-	for(i = 0; i < inostr.size/64; i++){
+	for(i = 0; i < inostr.size/32; i++){
         get_dir_entry(fin,&de,inostr.datablocks[0],i);
         
         if(strcmp(de.name, ".") != 0 && strcmp(de.name, "..") != 0) 
         {
             if(inostr.type == 1) {
                 
-                printf("%s\n",de.name);
-                inum++;
+                printf("\t%s\n",de.name);
                 tab++;
+                inum++;
                 ls(fin, inum, tab);
             }
         }
 	}
-    
-/*
-    struct inode inostr;
-    struct dir_entry de;
-    get_inode_struct(fin, &inostr, inum);
-
-    while(inostr.size == 64) {
-        for(int i = 0; i < 3; i++){ // dir entry times 
-            get_dir_entry(fin, &de, 0, dirnum);
-            
-            if(strcmp(de.name, ".")==0 ||strcmp(de.name, "..")==0)
-                printf("\t%s\n", de.name);
-            else
-                printf("%s\n", de.name);
-            dirnum++;
-        }   
-        inum++;
-        get_inode_struct(fin, &inostr, inum);
-
-        //printf("inum: %d\n", inum);
-    }*/
 }
+
+void cd(FILE *fin, char name[28], int inum) {
+	char str1[28];
+    char str2[28];
+    int ret;
+    bool flag = false;
+    //-------------------------------\\ 
+    
+    struct inode inostr;
+	struct dir_entry de;
+	get_inode_struct(fin,&inostr,inum);
+
+	int i;
+	for(i = 0; i < inostr.size/32; i++){
+        get_dir_entry(fin,&de,inostr.datablocks[0],i);
+        
+        if(inostr.type == 1) {
+            strcpy(str1, de.name);
+            strcpy(str2, name);
+            ret = strcmp(str1, str2);
+            if(ret == 0) {
+                strcpy(previousDirName, currentDirName);
+                strcpy(currentDirName, de.name);
+                previousDir = currentDir;
+                currentDir = de.inode_num;
+                flag = true;
+            }
+
+            if(strcmp(name, "..") == 0) {
+                strcpy(currentDirName, previousDirName);
+                currentDir = previousDir;
+                return;
+            }
+            inum++;
+        }
+	}
+    if(!flag)
+        printf("-bash: cd: %s: No such file or directory\n", name);
+}
+
 
 
 void mkdir(int currentDir, char name[28]) {
     struct sb Sb;
-    FILE  * fin = fopen("simplefs.bin", "r");
+    FILE  * fin = fopen("simplefs.bin", "w");
     fread(&Sb, sizeof(Sb),1,fin);
     int i;
     int j;
@@ -108,7 +136,7 @@ void mkdir(int currentDir, char name[28]) {
     for(i = 0;i<10;i++)
         for(j=0;j<32;j++)
             newInode.datablocks[i] = 0;
-    FILE *fout = fopen("simplefs.bin","rb+");
+    FILE *fout = fopen("simplefs.bin","wb+");
 
     fwrite(&newInode, sizeof(folder), 1, fout);
 	fwrite(&dot, sizeof(dot), 1, fout);

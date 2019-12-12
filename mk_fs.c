@@ -16,7 +16,7 @@ int main() {
 
 	struct inode slash;
 	slash.type = DIR;
-	slash.size = DIRENTRYSIZE * 2;
+	slash.size = DIRENTRYSIZE * 4;
 	slash.datablocks[0] = 0;
 
 	fwrite(&slash, sizeof(slash), 1, fout);
@@ -25,7 +25,7 @@ int main() {
 
 	struct inode inHome;
 	inHome.type = DIR;
-	inHome.size = DIRENTRYSIZE * 2;
+	inHome.size = DIRENTRYSIZE * 3;
 	inHome.datablocks[0] = 1;
 
 	fwrite(&inHome, sizeof(inHome), 1, fout);
@@ -42,16 +42,7 @@ int main() {
 	//------------ INODES END ------------//
 
 
-
-
-
-
-
 	//------------ DIR ENTRIES START ------------//
-
-	struct dir_entry root;
-	strcpy(root.name, "/");
-	root.inode_num = 0;
 
 	struct dir_entry dot;
 	strcpy(dot.name, ".");
@@ -61,17 +52,21 @@ int main() {
 	strcpy(dotdot.name, "..");
 	dotdot.inode_num = 0;
 
-
-	fseek(fout, sizeof(super_block) + NUMOFINODES * sizeof(struct inode) + 512 * 0, SEEK_SET);
-	fwrite(&root, sizeof(root), 1, fout);
-	fwrite(&dot, sizeof(dot), 1, fout);
-	fwrite(&dotdot, sizeof(dotdot), 1, fout);
-
-	//---------------------------------------------------------------------//
-
 	struct dir_entry home;
 	strcpy(home.name, "home");
 	home.inode_num = 1;
+
+	struct dir_entry downloads;
+	strcpy(downloads.name, "downloads");
+	downloads.inode_num = 2;
+
+	fseek(fout, sizeof(super_block) + NUMOFINODES * sizeof(struct inode) + 512 * 0, SEEK_SET);
+	fwrite(&dot, sizeof(dot), 1, fout);
+	fwrite(&dotdot, sizeof(dotdot), 1, fout);
+	fwrite(&home, sizeof(home), 1, fout);
+	fwrite(&downloads, sizeof(downloads), 1, fout);
+
+	//---------------------------------------------------------------------//
 
 	strcpy(dot.name, ".");
 	dot.inode_num = 1;
@@ -79,16 +74,17 @@ int main() {
 	strcpy(dotdot.name, "..");
 	dotdot.inode_num = 0;
 
+	struct dir_entry notes;
+	strcpy(notes.name, "notes");
+	notes.inode_num = 2;
+
 	fseek(fout, sizeof(super_block) + NUMOFINODES * sizeof(struct inode) + 512 * 1, SEEK_SET);
-	fwrite(&home, sizeof(home), 1, fout);
 	fwrite(&dot, sizeof(dot), 1, fout);
 	fwrite(&dotdot, sizeof(dotdot), 1, fout);
+	fwrite(&notes, sizeof(notes), 1, fout);
+
 
 	//---------------------------------------------------------------------//
-
-	struct dir_entry downloads;
-	strcpy(downloads.name, "downloads");
-	downloads.inode_num = 2;
 
 	strcpy(dot.name, ".");
 	dot.inode_num = 2;
@@ -97,7 +93,6 @@ int main() {
 	dotdot.inode_num = 0;
 
 	fseek(fout, sizeof(super_block) + NUMOFINODES * sizeof(struct inode) + 512 * 2, SEEK_SET);
-	fwrite(&downloads, sizeof(downloads), 1, fout);
 	fwrite(&dot, sizeof(dot), 1, fout);
 	fwrite(&dotdot, sizeof(dotdot), 1, fout);
 
