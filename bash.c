@@ -28,10 +28,8 @@ int main() {
         printf("\033[1;32m\03user@DESKTOP:\033[1;34m\03%s\033[0m\03$ ", currentDirName);
 		scanf("%s",command);
         if(strcmp(command, "ls") == 0) {
-            printf("*************\n");
             printf("/\n");
             ls(fin, 0, tab);
-            printf("*************\n");
         }
         else if (strcmp(command,"mkdir") == 0) {
             //mkdir(fin, name);
@@ -51,7 +49,7 @@ void ls(FILE *fin, int inum, int tab) {
     struct inode inostr;
 	struct dir_entry de;
 	get_inode_struct(fin,&inostr,inum);
-
+    tab++;
 	int i;
 	for(i = 0; i < inostr.size/32; i++){
         get_dir_entry(fin,&de,inostr.datablocks[0],i);
@@ -60,13 +58,13 @@ void ls(FILE *fin, int inum, int tab) {
         {
             if(inostr.type == 1) {
                 
-                printf("\t%s\n",de.name);
-                tab++;
+                printf("%*s%s\n", tab * 5, "", de.name);
                 inum++;
                 ls(fin, inum, tab);
             }
         }
 	}
+    tab--;
 }
 
 void cd(FILE *fin, char name[28], int inum) {
