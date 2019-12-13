@@ -114,16 +114,16 @@ void cd(FILE *fin, char name[28], int inum) {
 
 void mkdir(FILE* fin, int currentDir, char name[28]) {
 	struct dir_entry de;
-
+/*
     for(int i = 0; i < 15; i++) {
-                    get_dir_entry(fin,&de,i,0);
+            get_dir_entry(fin,&de,i,0);
 
         printf("%d\n", de.inode_num);
         if(strlen(de.name) == 0) {printf("ding dong\n");}
 
-    }
+    }*/
 
-/*
+
     struct inode inostr;
     int inum = currentDir;
 	get_inode_struct(fin,&inostr,inum);
@@ -132,7 +132,7 @@ void mkdir(FILE* fin, int currentDir, char name[28]) {
         printf("inostrsize: %d\n", inostr.size);
         inum++;
     }
-
+/*
     struct inode dirInode;
 	inHome.type = DIR;
 	inHome.size = DIRENTRYSIZE * 2;
