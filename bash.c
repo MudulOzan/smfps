@@ -15,7 +15,7 @@ void ls(FILE *file, int inum, int tab);
 void cd(FILE *file, char name[28], int inum);
 void get_inode_struct(FILE *f, struct inode *inode,int inode_num);
 //void mkdir(FILE *fin, char name[28]);
-void mkdir(int currentDir, char name[28]);
+void mkdir(FILE *fin, int currentDir, char name[28]);
 void get_dir_entry(FILE *fin, struct dir_entry *de, int db_num, int dir_entry_num);
 
 int main() {
@@ -34,13 +34,17 @@ int main() {
         else if (strcmp(command,"mkdir") == 0) {
             //mkdir(fin, name);
             scanf("%s", name);
-            mkdir(currentDir, name);
+            mkdir(fin, currentDir, name);
         }
         else if (strcmp(command,"cd") == 0) {
             //mkdir(fin, name);
             scanf("%s", name);
             cd(fin, name, currentDir);
         }
+        else {
+            printf("%s: command not found\n", command);
+        }
+
     }
 }
 
@@ -108,67 +112,49 @@ void cd(FILE *fin, char name[28], int inum) {
 
 
 
-void mkdir(int currentDir, char name[28]) {
-    struct sb Sb;
-    FILE  * fin = fopen("simplefs.bin", "w");
-    fread(&Sb, sizeof(Sb),1,fin);
-    int i;
-    int j;
-    struct inode currentInode;
+void mkdir(FILE* fin, int currentDir, char name[28]) {
+	struct dir_entry de;
 
-    fseek(fin, sizeof(struct sb)+currentDir*sizeof(struct inode), SEEK_SET);
-    fread(&currentInode, sizeof(currentInode),1,fin);
-    struct inode newInode;
-    newInode.type = DIR;
-    newInode.size = DIRENTRYSIZE*2;
+    for(int i = 0; i < 15; i++) {
+                    get_dir_entry(fin,&de,i,0);
 
-    struct dir_entry folder;
-    strcpy(folder.name, name);
-    folder.inode_num = 1;
+        printf("%d\n", de.inode_num);
+        if(strlen(de.name) == 0) {printf("ding dong\n");}
+
+    }
+
+/*
+    struct inode inostr;
+    int inum = currentDir;
+	get_inode_struct(fin,&inostr,inum);
+    while(inostr.size != 0) {
+        get_inode_struct(fin,&inostr,inum);
+        printf("inostrsize: %d\n", inostr.size);
+        inum++;
+    }
+
+    struct inode dirInode;
+	inHome.type = DIR;
+	inHome.size = DIRENTRYSIZE * 2;
+	inHome.datablocks[0] = (inum-1);
+
+	fwrite(&inHome, sizeof(inHome), 1, fout);
+        
+    get_inode_struct(fin,&inostr,currentDir);
+    inostr.size += DIRENTRYSIZE;
+
     struct dir_entry dot;
-    strcpy(dot.name,".");
-    dot.inode_num = 1;
-    struct dir_entry dotdot;
-    strcpy(dotdot.name,"..");
-    dotdot.inode_num = 1;
-    for(i = 0;i<10;i++)
-        for(j=0;j<32;j++)
-            newInode.datablocks[i] = 0;
-    FILE *fout = fopen("simplefs.bin","wb+");
-
-    fwrite(&newInode, sizeof(folder), 1, fout);
-	fwrite(&dot, sizeof(dot), 1, fout);
-	fwrite(&dotdot, sizeof(dotdot), 1, fout);
-
-
-
-    /*
-    printf("you are inside mkdir\n");
-    //we need an fseek here in order to jump written inodes
-	struct inode dir;
-	dir.type = DIR;
-	dir.size = DIRENTRYSIZE * 2;
-	dir.datablocks[0] = 0;
-
-    fwrite(&dir, sizeof(dir), 1, fout);
-
-    fseek(fout, sizeof(super_block) + NUMOFINODES * sizeof(struct inode), SEEK_SET); // this will be calculated till the end of the dir entries
-	
-    struct dir_entry folder;
-	strcpy(folder.name, name);
-	folder.inode_num = 1; // this will be the current folders inode + 1
-
-	struct dir_entry dot;
 	strcpy(dot.name, ".");
-	dot.inode_num = 1; // this will be the current folders inode + 1
+	dot.inode_num = (inum-1);
 
 	struct dir_entry dotdot;
 	strcpy(dotdot.name, "..");
-	dotdot.inode_num = 0; // this will be the current folders inode
+	dotdot.inode_num = currentDir;
 
-    fwrite(&home, sizeof(folder), 1, fout);
-	fwrite(&dot, sizeof(dot), 1, fout);
-	fwrite(&dotdot, sizeof(dotdot), 1, fout);*/
+    struct dir_entry dir;
+	strcpy(dotdot.name, name);
+	dotdot.inode_num = currentDir;
+*/
 
 }
 
