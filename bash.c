@@ -170,3 +170,32 @@ void get_dir_entry(FILE *fin, struct dir_entry *de, int db_num, int dir_entry_nu
     fseek(fin, sizeof(struct sb) + sizeof(struct inode)*32+ 512* db_num + dir_entry_num*sizeof(struct dir_entry), SEEK_SET);
     fread(de, sizeof(struct dir_entry), 1, fin);
 }
+
+int getBit(int bitnum, int bitmap) 
+{ 
+    for (int i = 31; i >= 0; i--) { 
+        count++;
+        int k = bitmap >> 31-i; 
+        if (k & 1) 
+            printf("1"); 
+        else
+        {
+            printf("0"); 
+            return --count;
+        } 
+    }
+} 
+
+int setBit(int bitnum, int bitmap) 
+{ 
+    for (int i = 31; i >= 0; i--) { 
+        count++;
+        int k = bitmap >> 31-i; 
+        if (k & 1) 
+            printf("1"); 
+        else
+        {
+            printf("0"); 
+        } 
+    }
+} 
