@@ -103,7 +103,7 @@ void cd(FILE *fin, char name[28], int inum) {
                 currentDir = previousDir;
                 return;
             }
-            inum++;
+            inum++; // kontrol edilecek gereksiz olabilir
         }
 	}
     if(!flag)
@@ -113,25 +113,38 @@ void cd(FILE *fin, char name[28], int inum) {
 
 
 void mkdir(FILE* fin, int currentDir, char name[28]) {
-	struct dir_entry de;
-/*
-    for(int i = 0; i < 15; i++) {
-            get_dir_entry(fin,&de,i,0);
-
-        printf("%d\n", de.inode_num);
-        if(strlen(de.name) == 0) {printf("ding dong\n");}
-
-    }*/
-
-
+    struct sb sblock;
     struct inode inostr;
+    struct dir_entry de;
+    
     int inum = currentDir;
-	get_inode_struct(fin,&inostr,inum);
-    while(inostr.size != 0) {
-        get_inode_struct(fin,&inostr,inum);
-        printf("inostrsize: %d\n", inostr.size);
-        inum++;
+    fread(sblock, sizeof(struct sb), 1, fin);
+
+    int i = 0;
+    while(getBit(i, sblock.inode_bitmap) != 0) 
+    {
+        i++;
     }
+    int inode = i;
+    i = 0;
+
+    int j = 0;
+    for(int z = 0; z < 10; z++) {
+        while(j < 32) {
+            db_num = getBit(j, sblock.datablocks[z]);
+            if(db_num == 0)
+                break;
+        }
+    }
+
+    int bit;
+    int inode = 0;
+    for(int i = 0; i < 32; i++) {
+        if(getBit(i, sblock.inode_bitmap) == 0) 
+            break;
+        inode++;
+    }
+
 /*
     struct inode dirInode;
 	inHome.type = DIR;
@@ -171,31 +184,12 @@ void get_dir_entry(FILE *fin, struct dir_entry *de, int db_num, int dir_entry_nu
     fread(de, sizeof(struct dir_entry), 1, fin);
 }
 
-int getBit(int bitnum, int bitmap) 
+int getBit(int bitnum, int n) 
 { 
-    for (int i = 31; i >= 0; i--) { 
-        count++;
-        int k = bitmap >> 31-i; 
-        if (k & 1) 
-            printf("1"); 
-        else
-        {
-            printf("0"); 
-            return --count;
-        } 
-    }
+    return (31-n >> bitnum) & 1;
 } 
 
 int setBit(int bitnum, int bitmap) 
 { 
-    for (int i = 31; i >= 0; i--) { 
-        count++;
-        int k = bitmap >> 31-i; 
-        if (k & 1) 
-            printf("1"); 
-        else
-        {
-            printf("0"); 
-        } 
-    }
+    return bitmap & ~(1 << 31-bitnum);
 } 
