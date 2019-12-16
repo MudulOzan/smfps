@@ -1,7 +1,7 @@
 
 #define REGFILE 0
 #define DIR 1
-#define FILE 2
+#define FL 2
 #define DATABLOCKSIZE 512
 #define DIRENTRYSIZE 32
 #define NUMOFINODES 32

@@ -116,49 +116,53 @@ void mkdir(FILE* fin, int currentDir, char name[28]) {
     struct sb sblock;
     struct inode inostr;
     struct dir_entry de;
-    
+    int db_num;
     int inum = currentDir;
     fread(sblock, sizeof(struct sb), 1, fin);
 
-    int i = 0;
-    while(getBit(i, sblock.inode_bitmap) != 0) 
-    {
-        i++;
-    }
-    int inode = i;
-    i = 0;
 
-    int j = 0;
-    for(int z = 0; z < 10; z++) {
-        while(j < 32) {
-            db_num = getBit(j, sblock.datablocks[z]);
-            if(db_num == 0)
+    bool flag = false;
+    int db_array = 0;
+    int db_num = 0;
+    int db_bit;
+    for(int db_array = 0; db_array < 10; db_array++) {
+        while(db_num < 32) {
+            if(getBit(db_num, sblock.datablocks[db_array]) == 0) {
+                flag = true;
+                db_bit = setBit(db_num, sblock.datablocks[db_array]);
                 break;
+            }
+            db_num++;
         }
+        if(flag) break;
     }
 
     int bit;
     int inode = 0;
-    for(int i = 0; i < 32; i++) {
-        if(getBit(i, sblock.inode_bitmap) == 0) 
+    for(int inode = 0; inode < 32; inode++) {
+        if(getBit(inode, sblock.inode_bitmap) == 0) 
             break;
-        inode++;
     }
 
-/*
+
     struct inode dirInode;
 	inHome.type = DIR;
 	inHome.size = DIRENTRYSIZE * 2;
-	inHome.datablocks[0] = (inum-1);
+	inHome.datablocks[db_array] = db_bit;
 
+    //fseek get_inode_struct(fin, inostr, inode)
 	fwrite(&inHome, sizeof(inHome), 1, fout);
         
     get_inode_struct(fin,&inostr,currentDir);
     inostr.size += DIRENTRYSIZE;
+    //fwrite 
 
     struct dir_entry dot;
 	strcpy(dot.name, ".");
-	dot.inode_num = (inum-1);
+	dot.inode_num = inode;
+
+    //fseek get_dir_entry(fin, de, db_array * db_num + dbnum, 0)
+    //fwrite
 
 	struct dir_entry dotdot;
 	strcpy(dotdot.name, "..");
@@ -166,9 +170,10 @@ void mkdir(FILE* fin, int currentDir, char name[28]) {
 
     struct dir_entry dir;
 	strcpy(dotdot.name, name);
-	dotdot.inode_num = currentDir;
-*/
+	dotdot.inode_num = inode;
 
+    //fseek get_dir_entry(fin, de, currentDir.dbnum(will settle this later), 0)
+    //fwrite
 }
 
 void get_inode_struct(FILE *fin, struct inode *inostr, int inode_num){
