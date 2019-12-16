@@ -21,7 +21,7 @@ int setBit(int bitnum, int bitmap);
 
 int main() {
     
-    FILE *fin = fopen("simplefs.bin", "r");
+    FILE *fin = fopen("simplefs.bin", "r+");
 
     char command[32];
     while(1) {
@@ -61,10 +61,11 @@ void ls(FILE *fin, int inum, int tab) {
         
         if(strcmp(de.name, ".") != 0 && strcmp(de.name, "..") != 0) 
         {
-            if(inostr.type == 1) {
+            if(inostr.type == DIR) {
                 
-                printf("%*s%s\n", tab * 5, "", de.name);
+                printf("%*s%s", tab * 5, "", de.name);
                 inum++;
+                printf("\t\t%d\n", inum);
                 ls(fin, inum, tab);
             }
         }
@@ -117,6 +118,7 @@ void mkdir(FILE* fin, int currentDir, char name[28]) {
     struct inode inostr;
     struct dir_entry de;
     int inum = currentDir;
+    fseek(fin, 0, SEEK_SET);
     fread(&sblock, sizeof(struct sb), 1, fin);
 
 
@@ -125,7 +127,10 @@ void mkdir(FILE* fin, int currentDir, char name[28]) {
     int db_array = 0;
     int db_num = 0;
     int db_bit;
-    for(int db_array = 0; db_array < 10; db_array++) {
+        get(sblock.data_bitmap[0]);
+    printf("\tdb_btmap: %d\n", sblock.data_bitmap[0]);
+
+    for(db_array = 0; db_array < 10; db_array++) {
         while(db_num < 32) {
             if(getBit(db_num, sblock.data_bitmap[db_array]) == 0) {
                 flag = true; // if datablock is empty break the loop so that we store the number
@@ -137,11 +142,21 @@ void mkdir(FILE* fin, int currentDir, char name[28]) {
         if(flag) break;
     }
     #pragma endregion find_datablock
+    get(sblock.data_bitmap[0]);
 
+    printf("\tdb_array: %d\n", db_array);
+    printf("\tdb_num: %d\n", db_num);
+    printf("\tinode_bitmap: %d\n", sblock.inode_bitmap);
+    printf("inodebitmap\n");
+    get(sblock.inode_bitmap);
+    printf("\n");
     #pragma region find_inode
     int inode_bit;
     int inode = 0;
-    for(int inode = 0; inode < 32; inode++) {
+    //printf("\ti: %d | bit: %d\n",i, getBit(i, sblock.inode_bitmap));
+
+    for(inode = 0; inode < 32; inode++) {
+        printf("\tinodes: %d", inode);
         if(getBit(inode, sblock.inode_bitmap) == 0) 
         {
             inode_bit = setBit(inode, sblock.inode_bitmap); // setBit and return the bitmap to inode_bit for ex; [1][1][0][1] -> [1][1][1][1] |so it should be stored in -> sblock.inode_bitmap but needs override
@@ -149,6 +164,7 @@ void mkdir(FILE* fin, int currentDir, char name[28]) {
         }
     }
     #pragma endregion find_inode
+    printf("\tinode: %d\n", inode);
 
     #pragma region new_inode
     struct inode dirInode;
@@ -170,16 +186,17 @@ void mkdir(FILE* fin, int currentDir, char name[28]) {
 	dotdot.inode_num = currentDir;
     get_dir_entry(fin, &de, db_array * db_num + db_num, 0);
 	fwrite(&dot, sizeof(dot), 1, fin);
-	fwrite(&dotdot, sizeof(dotdot), 1, fin);
     #pragma endregion new_dir_entry
 
     #pragma region parent_dir_entry
     struct dir_entry dir;
+    printf("\tname: %s\n", name);
 	strcpy(dir.name, name);
-	dir.inode_num = inode;
+	dir.inode_num = currentDir;
 
     get_dir_entry(fin, &de, inostr.datablocks[0], inostr.size);
 	fwrite(&dir, sizeof(dir), 1, fin);
+    fwrite(&dotdot, sizeof(dotdot), 1, fin);
     #pragma endregion parent_dir_entry
 
     #pragma region parent_inode
@@ -194,6 +211,10 @@ void mkdir(FILE* fin, int currentDir, char name[28]) {
     fseek (fin, 0, SEEK_SET);
 	fwrite(&sblock, sizeof(sblock), 1, fin);
     #pragma endregion override_superblock
+    printf("databitmap\n");
+    get(sblock.data_bitmap[0]);
+    printf("inodebitmap\n");
+    get(sblock.inode_bitmap);
 }
 
 void get_inode_struct(FILE *fin, struct inode *inostr, int inode_num)
@@ -210,5 +231,22 @@ void get_dir_entry(FILE *fin, struct dir_entry *de, int db_num, int dir_entry_nu
     fread(de, sizeof(struct dir_entry), 1, fin);
 }
 
-int getBit(int bitnum, int n) { return (31-n >> bitnum) & 1; } 
-int setBit(int bitnum, int bitmap) { return bitmap & ~(1 << 31-bitnum); } 
+
+int getBit(int bitnum, int n) { return (n >> bitnum) & 1; } 
+int setBit(int bitnum, int bitmap) { return bitmap ^ (1 << bitnum); } 
+
+int get(int bitmap) 
+{ 
+    int count = 0;
+    for (int i = 31; i >= 0; i--) { 
+        count++;
+        int k = bitmap >> i; 
+        if (k & 1) 
+            printf("1"); 
+        else
+        {
+            printf("0"); 
+        } 
+    }
+    printf("\n");
+} 
