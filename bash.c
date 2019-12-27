@@ -190,10 +190,11 @@ void mkdir(FILE* fin, int currentDir, char name[28]) {
 
     #pragma region parent_dir_entry
     struct dir_entry dir;
+    get_inode_struct(fin, &inostr, currentDir);
     printf("\tname: %s\n", name);
 	strcpy(dir.name, name);
 	dir.inode_num = currentDir;
-
+  	printf("aaaaaaaaaaaaaaaaa: %d", inostr.size);
     get_dir_entry(fin, &de, inostr.datablocks[0], inostr.size);
 	fwrite(&dir, sizeof(dir), 1, fin);
     fwrite(&dotdot, sizeof(dotdot), 1, fin);
