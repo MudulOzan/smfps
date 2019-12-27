@@ -5,10 +5,10 @@
 int main() {
 	FILE *fout = fopen("simplefs.bin", "w");
 	struct sb super_block;
-	super_block.inode_bitmap = 15;
+	super_block.inode_bitmap = 1;
 	for(int i = 0; i < 10; i++)
 		super_block.data_bitmap[i] = 0;
-	super_block.data_bitmap[0] = 15;
+	super_block.data_bitmap[0] = 1;
 
 	fwrite(&super_block, sizeof(super_block), 1, fout);
 
@@ -16,7 +16,7 @@ int main() {
 
 	struct inode slash;
 	slash.type = DIR;
-	slash.size = DIRENTRYSIZE * 4;
+	slash.size = DIRENTRYSIZE * 2;
 	slash.datablocks[0] = 0;
 
 	fwrite(&slash, sizeof(slash), 1, fout);
@@ -28,7 +28,7 @@ int main() {
 	inHome.size = DIRENTRYSIZE * 3;
 	inHome.datablocks[0] = 1;
 
-	fwrite(&inHome, sizeof(inHome), 1, fout);
+//	fwrite(&inHome, sizeof(inHome), 1, fout);
 
 	//---------------------------------------------------------------------//
 
@@ -37,7 +37,7 @@ int main() {
 	inDownloads.size = DIRENTRYSIZE * 2;
 	inDownloads.datablocks[0] = 2;
 	
-	fwrite(&inDownloads, sizeof(inDownloads), 1, fout);
+//	fwrite(&inDownloads, sizeof(inDownloads), 1, fout);
 
 	//---------------------------------------------------------------------//
 
@@ -46,7 +46,7 @@ int main() {
 	inNotes.size = DIRENTRYSIZE * 2;
 	inNotes.datablocks[0] = 3;
 	
-	fwrite(&inNotes, sizeof(inNotes), 1, fout);
+//	fwrite(&inNotes, sizeof(inNotes), 1, fout);
 
 	//------------ INODES END ------------//
 
@@ -72,8 +72,8 @@ int main() {
 	fseek(fout, sizeof(super_block) + NUMOFINODES * sizeof(struct inode) + 512 * 0, SEEK_SET);
 	fwrite(&dot, sizeof(dot), 1, fout);
 	fwrite(&dotdot, sizeof(dotdot), 1, fout);
-	fwrite(&home, sizeof(home), 1, fout);
-	fwrite(&downloads, sizeof(downloads), 1, fout);
+//	fwrite(&home, sizeof(home), 1, fout);
+//	fwrite(&downloads, sizeof(downloads), 1, fout);
 
 	//---------------------------------------------------------------------//
 
@@ -88,9 +88,9 @@ int main() {
 	notes.inode_num = 3;
 
 	fseek(fout, sizeof(super_block) + NUMOFINODES * sizeof(struct inode) + 512 * 1, SEEK_SET);
-	fwrite(&dot, sizeof(dot), 1, fout);
-	fwrite(&dotdot, sizeof(dotdot), 1, fout);
-	fwrite(&notes, sizeof(notes), 1, fout);
+//	fwrite(&dot, sizeof(dot), 1, fout);
+//	fwrite(&dotdot, sizeof(dotdot), 1, fout);
+//	fwrite(&notes, sizeof(notes), 1, fout);
 
 
 	//---------------------------------------------------------------------//
@@ -102,8 +102,8 @@ int main() {
 	dotdot.inode_num = 0;
 
 	fseek(fout, sizeof(super_block) + NUMOFINODES * sizeof(struct inode) + 512 * 2, SEEK_SET);
-	fwrite(&dot, sizeof(dot), 1, fout);
-	fwrite(&dotdot, sizeof(dotdot), 1, fout);
+//	fwrite(&dot, sizeof(dot), 1, fout);
+//	fwrite(&dotdot, sizeof(dotdot), 1, fout);
 
 	//---------------------------------------------------------------------//
 
@@ -114,8 +114,8 @@ int main() {
 	dotdot.inode_num = 1;
 
 	fseek(fout, sizeof(super_block) + NUMOFINODES * sizeof(struct inode) + 512 * 3, SEEK_SET);
-	fwrite(&dot, sizeof(dot), 1, fout);
-	fwrite(&dotdot, sizeof(dotdot), 1, fout);
+//	fwrite(&dot, sizeof(dot), 1, fout);
+//	fwrite(&dotdot, sizeof(dotdot), 1, fout);
 
 	//------------ DIR ENTRIES END ------------//
 

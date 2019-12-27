@@ -22,7 +22,8 @@ int setBit(int bitnum, int bitmap);
 int main() {
     
     FILE *fin = fopen("simplefs.bin", "r+");
-
+	struct dir_entry de;
+	//struct 
     char command[32];
     while(1) {
 
@@ -42,7 +43,10 @@ int main() {
             scanf("%s", name);
             cd(fin, name, currentDir);
         }
-        else {
+	else if (strcmp(command, "anan") == 0) {
+		//get_dir_entry(fin, &de, 
+	 }
+	else {
             printf("%s: command not found\n", command);
         }
 
@@ -186,7 +190,8 @@ void mkdir(FILE* fin, int currentDir, char name[28]) {
 	dotdot.inode_num = currentDir;
     get_dir_entry(fin, &de, db_array * db_num + db_num, 0);
 	fwrite(&dot, sizeof(dot), 1, fin);
-    #pragma endregion new_dir_entry
+  	fwrite(&dotdot, sizeof(dotdot), 1, fin);
+#pragma endregion new_dir_entry
 
     #pragma region parent_dir_entry
     struct dir_entry dir;
@@ -197,8 +202,10 @@ void mkdir(FILE* fin, int currentDir, char name[28]) {
   	printf("aaaaaaaaaaaaaaaaa: %d", inostr.size);
     get_dir_entry(fin, &de, inostr.datablocks[0], inostr.size);
 	fwrite(&dir, sizeof(dir), 1, fin);
-    fwrite(&dotdot, sizeof(dotdot), 1, fin);
-    #pragma endregion parent_dir_entry
+	get_dir_entry(fin, &de, inostr.datablocks[0], 96);
+	printf("iiiiiiiiii: %s", de.name);
+
+#pragma endregion parent_dir_entry
 
     #pragma region parent_inode
     inostr.size += DIRENTRYSIZE;
