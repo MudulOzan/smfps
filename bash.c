@@ -100,15 +100,35 @@ void cd(FILE *fin, char name[28], int inum) {
             ret = strcmp(str1, str2);
             if(ret == 0) {
                 strcpy(previousDirName, currentDirName);
-                strcpy(currentDirName, de.name);
+                strcat(currentDirName, "/");
+                strcat(currentDirName, de.name);
                 previousDir = currentDir;
                 currentDir = de.inode_num;
                 flag = true;
             }
 
             if(strcmp(name, "..") == 0) {
-                strcpy(currentDirName, previousDirName);
-                currentDir = previousDir;
+                get_inode_struct(fin, &inostr, currentDir);
+                get_dir_entry(fin, &de, inostr.datablocks[0], 1);
+                previousDir = de.inode_num;
+                currentDir = de.inode_num;
+
+                if(currentDir == 0) {
+                    strcpy(currentDirName, "̃ ");
+                }
+                else {
+                    get_inode_struct(fin, &inostr, currentDir);
+                    get_dir_entry(fin, &de, inostr.datablocks[0], 1);
+                    get_inode_struct(fin, &inostr, de.inode_num);
+
+                    for(i = 0; i < inostr.size/32; i++){
+                        get_dir_entry(fin,&de,inostr.datablocks[0],i);
+
+                        if(de.inode_num == previousDir) {
+                            strcpy(currentDirName, previousDirName);
+                        }
+                    }
+                }
                 return;
             }
             inum++; // kontrol edilecek gereksiz olabilir
@@ -201,7 +221,7 @@ void mkdir(FILE* fin, int currentDir, char name[28]) {
     printf("\tname: %s\n", name);
 	strcpy(dir.name, name);
 	printf("dirname: %s\n", dir.name);
-	dir.inode_num = currentDir;
+	dir.inode_num = inode;
   	printf("aaaaaaaaaaaaaaaaa: %d\n", inostr.size);
     jump_dir_entry(fin, &de, inostr.datablocks[0], inostr.size/32);
 	fwrite(&dir, sizeof(dir), 1, fin);
