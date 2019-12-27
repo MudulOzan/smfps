@@ -65,7 +65,7 @@ void ls(FILE *fin, int inum, int tab) {
 	int i;
 	for(i = 0; i < inostr.size/32; i++){
         get_dir_entry(fin,&de,inostr.datablocks[0],i);
-        
+
         if(strcmp(de.name, ".") != 0 && strcmp(de.name, "..") != 0) 
         {
             if(inostr.type == DIR) {
@@ -127,7 +127,6 @@ void mkdir(FILE* fin, int currentDir, char name[28]) {
     int inum = currentDir;
     fseek(fin, 0, SEEK_SET);
     fread(&sblock, sizeof(struct sb), 1, fin);
-
 
     #pragma region find_datablock
     bool flag = false;
@@ -203,11 +202,11 @@ void mkdir(FILE* fin, int currentDir, char name[28]) {
 	strcpy(dir.name, name);
 	printf("dirname: %s\n", dir.name);
 	dir.inode_num = currentDir;
-  	printf("aaaaaaaaaaaaaaaaa: %d", inostr.size);
-    	jump_dir_entry(fin, &de, inostr.datablocks[0], inostr.size);
+  	printf("aaaaaaaaaaaaaaaaa: %d\n", inostr.size);
+    jump_dir_entry(fin, &de, inostr.datablocks[0], inostr.size/32);
 	fwrite(&dir, sizeof(dir), 1, fin);
-	get_dir_entry(fin, &de, inostr.datablocks[0], 768);
-	printf("iiiiiiiiii: %s", de.name);
+	get_dir_entry(fin, &de, inostr.datablocks[0], 64);
+	printf("iiiiiiiiii: %s\n", de.name);
 
 #pragma endregion parent_dir_entry
 
