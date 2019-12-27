@@ -16,6 +16,9 @@ void cd(FILE *file, char name[28], int inum);
 void get_inode_struct(FILE *f, struct inode *inode,int inode_num);
 void mkdir(FILE *fin, int currentDir, char name[28]);
 void get_dir_entry(FILE *fin, struct dir_entry *de, int db_num, int dir_entry_num);
+void jump_inode(FILE *f, struct inode *inode, int inode_num);
+void jump_dir_entry(FILE *fin, struct dir_entry *de, int db_num, int dir_entry_num);
+
 int getBit(int bitnum, int n);
 int setBit(int bitnum, int bitmap);
 
@@ -176,7 +179,7 @@ void mkdir(FILE* fin, int currentDir, char name[28]) {
 	dirInode.size = DIRENTRYSIZE * 2;
 	dirInode.datablocks[db_array] = db_num;
 
-    get_inode_struct(fin, &inostr, inode);
+    jump_inode(fin, &inostr, inode);
 	fwrite(&dirInode, sizeof(dirInode), 1, fin);
     #pragma endregion new_inode
 
@@ -188,7 +191,7 @@ void mkdir(FILE* fin, int currentDir, char name[28]) {
 	struct dir_entry dotdot;
 	strcpy(dotdot.name, "..");
 	dotdot.inode_num = currentDir;
-    get_dir_entry(fin, &de, db_array * db_num + db_num, 0);
+    	jump_dir_entry(fin, &de, db_array * db_num + db_num, 0);
 	fwrite(&dot, sizeof(dot), 1, fin);
   	fwrite(&dotdot, sizeof(dotdot), 1, fin);
 #pragma endregion new_dir_entry
@@ -198,18 +201,22 @@ void mkdir(FILE* fin, int currentDir, char name[28]) {
     get_inode_struct(fin, &inostr, currentDir);
     printf("\tname: %s\n", name);
 	strcpy(dir.name, name);
+	printf("dirname: %s\n", dir.name);
 	dir.inode_num = currentDir;
   	printf("aaaaaaaaaaaaaaaaa: %d", inostr.size);
-    get_dir_entry(fin, &de, inostr.datablocks[0], inostr.size);
+    	jump_dir_entry(fin, &de, inostr.datablocks[0], inostr.size);
 	fwrite(&dir, sizeof(dir), 1, fin);
-	get_dir_entry(fin, &de, inostr.datablocks[0], 96);
+	get_dir_entry(fin, &de, inostr.datablocks[0], 768);
 	printf("iiiiiiiiii: %s", de.name);
 
 #pragma endregion parent_dir_entry
 
     #pragma region parent_inode
-    inostr.size += DIRENTRYSIZE;
+    
     get_inode_struct(fin,&inostr,currentDir);
+    
+    inostr.size += DIRENTRYSIZE;
+    jump_inode(fin, &inostr, currentDir);
 	fwrite(&inostr, sizeof(inostr), 1, fin);
     #pragma endregion parent_inode
 
@@ -239,6 +246,16 @@ void get_dir_entry(FILE *fin, struct dir_entry *de, int db_num, int dir_entry_nu
     fread(de, sizeof(struct dir_entry), 1, fin);
 }
 
+void jump_inode(FILE *fin, struct inode *inostr, int inode_num)
+{
+	fseek(fin, sizeof(struct sb) + sizeof(struct inode) * inode_num, SEEK_SET);
+}
+
+void jump_dir_entry(FILE *fin, struct dir_entry *de, int db_num, int dir_entry_num) 
+{
+	fseek(fin, sizeof(struct sb) + sizeof(struct inode) * 32 + 512 * db_num + dir_entry_num * sizeof(struct dir_entry), SEEK_SET);
+}
+		
 
 int getBit(int bitnum, int n) { return (n >> bitnum) & 1; } 
 int setBit(int bitnum, int bitmap) { return bitmap ^ (1 << bitnum); } 
