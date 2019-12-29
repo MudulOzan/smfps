@@ -71,9 +71,9 @@ void ls(FILE *fin, int inum, int tab) {
             if(inostr.type == DIR) {
                 
                 printf("%*s%s", tab * 5, "", de.name);
-                inum++;
+                
                 printf("\t\t%d\n", inum);
-                ls(fin, inum, tab);
+                ls(fin, de.inode_num, tab);
             }
         }
 	}
@@ -112,7 +112,6 @@ void cd(FILE *fin, char name[28], int inum) {
                 get_dir_entry(fin, &de, inostr.datablocks[0], 1);
                 previousDir = de.inode_num;
                 currentDir = de.inode_num;
-
                 if(currentDir == 0) {
                     strcpy(currentDirName, "̃ ");
                 }
@@ -125,7 +124,7 @@ void cd(FILE *fin, char name[28], int inum) {
                         get_dir_entry(fin,&de,inostr.datablocks[0],i);
 
                         if(de.inode_num == previousDir) {
-                            strcpy(currentDirName, previousDirName);
+                            strcpy(currentDirName, de.name);
                         }
                     }
                 }
