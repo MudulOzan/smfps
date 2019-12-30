@@ -116,17 +116,9 @@ void cd(FILE *fin, char name[28], int inum) {
                     strcpy(currentDirName, "̃ ");
                 }
                 else {
-                    get_inode_struct(fin, &inostr, currentDir);
-                    get_dir_entry(fin, &de, inostr.datablocks[0], 1);
-                    get_inode_struct(fin, &inostr, de.inode_num);
-
-                    for(i = 0; i < inostr.size/32; i++){
-                        get_dir_entry(fin,&de,inostr.datablocks[0],i);
-
-                        if(de.inode_num == previousDir) {
-                            strcpy(currentDirName, de.name);
-                        }
-                    }
+                    char character = '/'; 
+                    char* ptr = strrchr(currentDirName, character);
+                    *ptr = '\0';
                 }
                 return;
             }
